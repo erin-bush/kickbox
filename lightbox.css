@@ -1,0 +1,22 @@
+
+@media (min-width: 736px){
+  .middle {
+      box-sizing: content-box;
+      padding: 40px 20px 0;
+      width: calc(100% - 40px);
+    }
+}
+
+
+
+.middle {
+  max-width: 935px;
+  margin: 0 auto 30px;
+}
+
+
+.square {
+    width: 250px;
+    height: 250px;
+    overflow: hidden;
+}
