@@ -14,6 +14,8 @@
 
 //TODO: Error handling for requests + xml parsing
 //TODO: only load 32 photos from server at a time
+//TODO: overlay full height
+//TODO: image loading spinner
 
 (function (){
 
@@ -77,7 +79,7 @@
   }
 
   function createThumbnail(serverId, farmId, id, secret){
-    var imageUrl = `https://farm${farmId}.staticflickr.com/${serverId}/${id}_${secret}_n.jpg`;
+    var imageUrl = `https://farm${farmId}.staticflickr.com/${serverId}/${id}_${secret}.jpg`;
     var photosetElement = document.getElementById("photoset");
 
     var link = document.createElement('a');
@@ -96,12 +98,55 @@
   }
 
   function initLightbox(){
+    //create all document elements first - with no display to be called in showLightbox()
+    //console.log(documentBody);
+
     var darkBackground = document.createElement('div');
-    darkBackground.setAttribute('class', '');
+    darkBackground.setAttribute('class', 'darkOverlay');
+    darkBackground.setAttribute('id', 'overlay');
+    darkBackground.onclick = hideLightbox;
+    document.body.appendChild(darkBackground);
+
+    var lightboxImg = document.createElement('img');
+    lightboxImg.setAttribute('id', 'lightbox');
+    lightboxImg.setAttribute('class', 'lightboxImg');
+    document.body.appendChild(lightboxImg);
+
+    getImagesFromServer(api_key, photoset_id, user_id, per_page, page);
+
   }
 
   function showLightbox(image){
-    console.log(image);
+    console.log(image.getElementsByTagName("img")[0].getAttribute('src'));
+
+    var lightboxImg = document.getElementById('lightbox');
+    lightboxImg.style.display = 'block';
+    lightboxImg.setAttribute('src', image.getElementsByTagName("img")[0].getAttribute('src'));
+
+    var overlay = document.getElementById("overlay");
+    overlay.style.display = 'block';
+
+    //listen for keypress
+
+  }
+
+  function hideLightbox(){
+    var lightboxImg = document.getElementById('lightbox');
+    var overlay = document.getElementById("overlay");
+
+    lightboxImg.style.display = 'none';
+    overlay.style.display = 'none';
+
+    //stop listening for key press
+  }
+
+  document.onkeypress = function (e) {
+    e = e || window.event;
+    // use e.keyCode
+  };
+
+  function getKey(){
+
   }
 
 var api_key = '6e7f8f609846236e84cc48c061c4d4a4';
@@ -110,6 +155,8 @@ var user_id = '142612890@N04';
 var per_page = '12';
 var page = '1';
 
-getImagesFromServer(api_key, photoset_id, user_id, per_page, page);
+window.onload = function () {
+  initLightbox();
+}
 
 })();
