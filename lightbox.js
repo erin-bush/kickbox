@@ -54,6 +54,9 @@
 
   PhotoSet.prototype = {
     constructor: PhotoSet,
+    setCurrentPhoto: function (index){
+      this.currentPhoto = index;
+    },
     getCurrentPhoto: function(){
       return this.currentPhoto;
     },
@@ -169,20 +172,14 @@
     var photoIndex = image.getElementsByTagName("div")[0].getAttribute('id');
     var photo = lightboxPhotos.getPhoto(photoIndex);
 
+    lightboxPhotos.setCurrentPhoto(photoIndex);
+
     console.log(photo);
 
-    //TODO: make IE compatible
-    //TODO: function for page size
+    createLightboxImage(photo);
+
     var windowWidth = document.body.clientWidth;
     var windowHeight = document.body.clientHeight;
-    console.log("HEIGHT " + windowHeight);
-
-    var lightboxImg = document.getElementById('lightbox');
-    lightboxImg.style.display = 'block';
-    lightboxImg.setAttribute('src', photo.getUrl());
-    lightboxImg.style.left = (windowWidth / 2) - (lightboxImg.clientWidth /2);
-    lightboxImg.style.top = (windowHeight / 2) - (lightboxImg.clientHeight /2);
-
 
     var overlay = document.getElementById("overlay");
     overlay.style.display = 'block';
@@ -193,16 +190,49 @@
 
     //TODO: load all images in photoset and enable scrolling through them.
 
-
-
-  }
-
-  function navigateRight(){
+    document.onkeydown = getKey;
 
   }
 
-  function navigateLeft(){
+  function createLightboxImage(photo){
+    //TODO: make IE compatible
+    //TODO: function for page size
+    var windowWidth = document.body.clientWidth;
+    var windowHeight = document.body.clientHeight;
 
+    var lightboxImg = document.getElementById('lightbox');
+    lightboxImg.style.display = 'block';
+    lightboxImg.setAttribute('src', photo.getUrl());
+    lightboxImg.style.left = (windowWidth / 2) - (lightboxImg.clientWidth /2);
+    lightboxImg.style.top = (windowHeight / 2) - (lightboxImg.clientHeight /2);
+  }
+
+  function navigate(e){
+    var key;
+
+    var limit = function(key) {
+      if (key == "right") return (lightboxPhotos.photosPerPage * lightboxPhotos.page) - 1;
+      else if (key == "left") return 0;
+    };
+
+    var next = function(key) {
+      if (key == "right") return parseInt(photoIndex)+1;
+      else if (key == "left") return parseInt(photoIndex) - 1 ;
+    };
+
+    if (e.keyCode === 39 || e.keyCode === 37) {
+      if (e.keyCode === 39) {
+        key = "right";
+      } else if (e.keyCode === 37) {
+        key = "left";
+      }
+
+      var photoIndex = lightboxPhotos.getCurrentPhoto();
+      var nextPhoto = photoIndex == limit(key) ? photoIndex : next(key);
+
+      lightboxPhotos.setCurrentPhoto(nextPhoto);
+      createLightboxImage(lightboxPhotos.getPhoto(nextPhoto));
+    }
   }
 
   function hideLightbox(){
@@ -212,20 +242,14 @@
     lightboxImg.style.display = 'none';
     overlay.style.display = 'none';
 
+    document.onkeydown = null;
     //stop listening for key press
   }
 
 
   function getKey(e){
-    if (e.keyCode === 39 || e.keyCode === 37) {
-        if (e.keyCode === 39) {
-          console.log('right');
-          //return this.navigate_right();
-        } else if (e.keyCode === 37) {
-          //return this.navigate_left();
-          console.log('left');
-        }
-      }
+    e = e || window.event;
+    navigate(e);
   }
 
 var api_key = '6e7f8f609846236e84cc48c061c4d4a4';
@@ -238,11 +262,10 @@ window.onload = function () {
   initLightbox();
 }
 
-document.onkeydown = function (e) {
-  e = e || window.event;
-  console.log('key press');
-  // use e.keyCode
-  getKey(e);
-};
+// document.onkeydown = function (e) {
+//   e = e || window.event;
+//   // use e.keyCode
+//   getKey(e);
+// };
 
 })();
