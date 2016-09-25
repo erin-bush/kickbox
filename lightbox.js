@@ -1,4 +1,4 @@
-//load 32 images
+//load 12 images
 //have a load more button on the bottom
 //adds to the gallery of thumbnails displayed on the page
 
@@ -16,15 +16,20 @@
 //TODO: image loading spinner
 //TODO: abstract flickr stuff into its own function
 //TODO: promises?
-
-//TODO: make sure full size image isn't wider than screen
-//TODO: close button and scroll buttons
+//TODO: readme
 //TODO: load more photos
+//TODO: pass in photoset information from html div
+
 //TODO: styling for gallery
+//TODO: center gallery images and button
 //TODO: make css class names consistent
+//TODO: loading spinner (lightbox and gallery)
 
 //TODO: overlay styling if body is smaller than page size
-//TODO: right arrow positioning on smaller screens
+//TODO: right and left arrow positioning on smaller screens
+
+//TODO: limit of photos in set
+
 
 (function (){
 
@@ -65,6 +70,9 @@
     getPhoto: function(index){
       return this.photos[index];
     },
+    getNumberOfPhotos: function(){
+      return this.photos.length;
+    },
     getNextPhoto: function(){
 
     },
@@ -80,6 +88,8 @@
     //create all document elements first
 
     //TODO: make all variable names consistent
+    //TODO: clean up this function
+
     var overlay = document.createElement('div');
     overlay.setAttribute('class', 'darkOverlay');
     overlay.setAttribute('id', 'overlay');
@@ -130,6 +140,20 @@
     leftArrow.appendChild(leftArrowImg);
     document.body.appendChild(leftArrow);
 
+    //add a button to load more photos
+    var buttonContainer = document.createElement('div');
+    buttonContainer.setAttribute('class', 'addmore-container');
+
+    var addMoreBtn = document.createElement('a');
+    addMoreBtn.setAttribute('class', 'addmore-btn');
+    var addMoreText = document.createTextNode("Load More Images");
+    addMoreBtn.appendChild(addMoreText);
+    addMoreBtn.onclick = loadMoreImages;
+
+    buttonContainer.appendChild(addMoreBtn);
+
+    document.getElementById("main-content").appendChild(buttonContainer);
+
     getImagesFromServer(api_key, photoset_id, user_id, per_page, page);
   }
 
@@ -158,20 +182,42 @@
     loadXMLDoc();
   }
 
+  function loadMoreImages(){
+    if (parseInt(page) == parseInt(lightboxPhotos.numberOfPages)){
+      //TODO: finish logic for getting to end of number of images (tell the user)
+      console.log("no more images to load");
+    }
+    else {
+      getImagesFromServer(api_key, photoset_id, user_id, per_page, parseInt(page) + 1);
+      page = parseInt(page) + 1;
+    }
+  }
+
   function createPhotos(xmlPhotos){
+    //TODO: refactor?
+
     var photosObj = parseXML(xmlPhotos);
     var photoset = photosObj.getElementsByTagName("photoset")[0];
     var photos = photosObj.getElementsByTagName("photo");
+    var index;
 
-    lightboxPhotos = new PhotoSet('url', photoset.getAttribute('id'), photoset.getAttribute('page'), photoset.getAttribute('perpage'), photoset.getAttribute('pages'), photoset.getAttribute('total'), photoset.getAttribute('title'));
+    if(lightboxPhotos == null){
+      lightboxPhotos = new PhotoSet('url', photoset.getAttribute('id'), photoset.getAttribute('page'), photoset.getAttribute('perpage'), photoset.getAttribute('pages'), photoset.getAttribute('total'), photoset.getAttribute('title'));
+      index = 0;
+    }
+    else {
+      index = lightboxPhotos.getNumberOfPhotos();
+    }
 
     for (i = 0; i < photos.length; i++) {
         var photo = new FlickrPhoto(photos[i].getAttribute('server'), photos[i].getAttribute('farm'), photos[i].getAttribute('id'), photos[i].getAttribute('secret'));
 
         lightboxPhotos.addPhoto(photo);
 
-        createThumbnail(photo, i);
+        createThumbnail(photo, index);
+        index ++;
     }
+
   }
 
   function parseXML(text){
@@ -246,7 +292,7 @@
 
   function navigate(key){
     var limit = function(key) {
-      if (key == "right") return (lightboxPhotos.photosPerPage * lightboxPhotos.page) - 1;
+      if (key == "right") return lightboxPhotos.getNumberOfPhotos() - 1;
       else if (key == "left") return 0;
     };
 
@@ -255,6 +301,7 @@
       else if (key == "left") return parseInt(photoIndex) - 1 ;
     };
 
+    //debugger;
     var photoIndex = lightboxPhotos.getCurrentPhoto();
     var nextPhoto = photoIndex == limit(key) ? photoIndex : next(key);
 
@@ -280,6 +327,7 @@
 
 
   function getKey(e){
+    //TODO: make sure this works on all browsers
     e = e || window.event;
 
     if (e.keyCode === 39 || e.keyCode === 37) {
