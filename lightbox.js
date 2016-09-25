@@ -13,16 +13,18 @@
 // size: m
 
 //TODO: Error handling for requests + xml parsing
-//TODO: only load 32 photos from server at a time
-//TODO: overlay full height
 //TODO: image loading spinner
 //TODO: abstract flickr stuff into its own function
 //TODO: promises?
 
-//TODO: photoset object - OO
 //TODO: make sure full size image isn't wider than screen
 //TODO: close button and scroll buttons
 //TODO: load more photos
+//TODO: styling for gallery
+//TODO: make css class names consistent
+
+//TODO: overlay styling if body is smaller than page size
+//TODO: right arrow positioning on smaller screens
 
 (function (){
 
@@ -75,9 +77,9 @@
 
 
   function initLightbox(){
-    //create all document elements first - with no display to be called in showLightbox()
+    //create all document elements first
 
-    //TODO: make all variable name consistent
+    //TODO: make all variable names consistent
     var overlay = document.createElement('div');
     overlay.setAttribute('class', 'darkOverlay');
     overlay.setAttribute('id', 'overlay');
@@ -88,6 +90,45 @@
     lightboxImg.setAttribute('id', 'lightbox');
     lightboxImg.setAttribute('class', 'lightboxImg');
     document.body.appendChild(lightboxImg);
+
+    //close button
+    var closeBtn = document.createElement('a');
+    closeBtn.setAttribute('href', '#');
+    closeBtn.setAttribute('class', 'close-btn');
+    closeBtn.onclick = hideLightbox;
+
+    var closeBtnImg = document.createElement('img');
+    closeBtnImg.setAttribute('src', 'xbutton.png');
+
+    closeBtn.appendChild(closeBtnImg);
+    document.body.appendChild(closeBtn);
+
+    //scrolling buttons
+    var rightArrow = document.createElement('a');
+    rightArrow.setAttribute('href', '#');
+    rightArrow.setAttribute('class', 'right-arrow');
+    rightArrow.onclick = function () {
+      navigate("right");
+    };
+
+    var rightArrowImg = document.createElement('img');
+    rightArrowImg.setAttribute('src', 'right-arrow.png');
+
+    rightArrow.appendChild(rightArrowImg);
+    document.body.appendChild(rightArrow);
+
+    var leftArrow = document.createElement('a');
+    leftArrow.setAttribute('href', '#');
+    leftArrow.setAttribute('class', 'left-arrow');
+    leftArrow.onclick = function () {
+      navigate("left");
+    };
+
+    var leftArrowImg = document.createElement('img');
+    leftArrowImg.setAttribute('src', 'left-arrow.png');
+
+    leftArrow.appendChild(leftArrowImg);
+    document.body.appendChild(leftArrow);
 
     getImagesFromServer(api_key, photoset_id, user_id, per_page, page);
   }
@@ -131,7 +172,6 @@
 
         createThumbnail(photo, i);
     }
-    console.log(lightboxPhotos);
   }
 
   function parseXML(text){
@@ -174,8 +214,6 @@
 
     lightboxPhotos.setCurrentPhoto(photoIndex);
 
-    console.log(photo);
-
     createLightboxImage(photo);
 
     var windowWidth = document.body.clientWidth;
@@ -195,7 +233,6 @@
 
   function createLightboxImage(photo){
     //TODO: make IE compatible
-    //TODO: function for page size
     //TODO: resize image - max width and height: 100% of screen - 50px (or something like that)
 
     var windowWidth = document.body.clientWidth;
@@ -204,13 +241,10 @@
     var lightboxImg = document.getElementById('lightbox');
     lightboxImg.style.display = 'block';
     lightboxImg.setAttribute('src', photo.getUrl());
-    lightboxImg.style.left = (windowWidth / 2) - (lightboxImg.clientWidth /2);
-    lightboxImg.style.top = (windowHeight / 2) - (lightboxImg.clientHeight /2);
   }
 
-  function navigate(e){
-    var key;
 
+  function navigate(key){
     var limit = function(key) {
       if (key == "right") return (lightboxPhotos.photosPerPage * lightboxPhotos.page) - 1;
       else if (key == "left") return 0;
@@ -221,20 +255,14 @@
       else if (key == "left") return parseInt(photoIndex) - 1 ;
     };
 
-    if (e.keyCode === 39 || e.keyCode === 37) {
-      if (e.keyCode === 39) {
-        key = "right";
-      } else if (e.keyCode === 37) {
-        key = "left";
-      }
+    var photoIndex = lightboxPhotos.getCurrentPhoto();
+    var nextPhoto = photoIndex == limit(key) ? photoIndex : next(key);
 
-      var photoIndex = lightboxPhotos.getCurrentPhoto();
-      var nextPhoto = photoIndex == limit(key) ? photoIndex : next(key);
+    lightboxPhotos.setCurrentPhoto(nextPhoto);
+    createLightboxImage(lightboxPhotos.getPhoto(nextPhoto));
 
-      lightboxPhotos.setCurrentPhoto(nextPhoto);
-      createLightboxImage(lightboxPhotos.getPhoto(nextPhoto));
-    }
   }
+
 
   function hideLightbox(){
     var lightboxImg = document.getElementById('lightbox');
@@ -253,7 +281,16 @@
 
   function getKey(e){
     e = e || window.event;
-    navigate(e);
+
+    if (e.keyCode === 39 || e.keyCode === 37) {
+      if (e.keyCode === 39) {
+        key = "right";
+        navigate("right");
+      } else if (e.keyCode === 37) {
+        key = "left";
+        navigate("left");
+      }
+    }
   }
 
 
