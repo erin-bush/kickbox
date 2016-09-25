@@ -20,9 +20,9 @@
 //TODO: promises?
 
 //TODO: photoset object - OO
-//TODO: no scrolling
 //TODO: make sure full size image isn't wider than screen
 //TODO: close button and scroll buttons
+//TODO: load more photos
 
 (function (){
 
@@ -184,12 +184,11 @@
     var overlay = document.getElementById("overlay");
     overlay.style.display = 'block';
     overlay.style.height = windowHeight;
-    //listen for keypress
 
-    //TODO: resize image - max width and height: 100% of screen - 50px (or something like that)
+    //disable scrolling when lightbox is open
+    document.body.className += 'disableScrolling';
 
-    //TODO: load all images in photoset and enable scrolling through them.
-
+    //listen for key presses
     document.onkeydown = getKey;
 
   }
@@ -197,6 +196,8 @@
   function createLightboxImage(photo){
     //TODO: make IE compatible
     //TODO: function for page size
+    //TODO: resize image - max width and height: 100% of screen - 50px (or something like that)
+
     var windowWidth = document.body.clientWidth;
     var windowHeight = document.body.clientHeight;
 
@@ -242,8 +243,11 @@
     lightboxImg.style.display = 'none';
     overlay.style.display = 'none';
 
-    document.onkeydown = null;
+    //remove "disableScrolling" class so page is once again scrollable
+    document.body.className = document.body.className.replace( /(?:^|\s)disableScrolling(?!\S)/g , '' );
+
     //stop listening for key press
+    document.onkeydown = null;
   }
 
 
@@ -251,6 +255,8 @@
     e = e || window.event;
     navigate(e);
   }
+
+
 
 var api_key = '6e7f8f609846236e84cc48c061c4d4a4';
 var photoset_id = '72157672393641335';
@@ -261,11 +267,5 @@ var page = '1';
 window.onload = function () {
   initLightbox();
 }
-
-// document.onkeydown = function (e) {
-//   e = e || window.event;
-//   // use e.keyCode
-//   getKey(e);
-// };
 
 })();
