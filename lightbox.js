@@ -21,8 +21,8 @@
 
 //TODO: photoset object - OO
 //TODO: no scrolling
-//TODO: crop thumbnails
 //TODO: make sure full size image isn't wider than screen
+//TODO: close button and scroll buttons
 
 (function (){
 
@@ -57,6 +57,9 @@
     getCurrentPhoto: function(){
       return this.currentPhoto;
     },
+    getPhoto: function(index){
+      return this.photos[index];
+    },
     getNextPhoto: function(){
 
     },
@@ -65,6 +68,28 @@
     }
   }
 
+  var lightboxPhotos;
+
+
+  function initLightbox(){
+    //create all document elements first - with no display to be called in showLightbox()
+
+    //TODO: make all variable name consistent
+    var overlay = document.createElement('div');
+    overlay.setAttribute('class', 'darkOverlay');
+    overlay.setAttribute('id', 'overlay');
+    overlay.onclick = hideLightbox;
+    document.body.appendChild(overlay);
+
+    var lightboxImg = document.createElement('img');
+    lightboxImg.setAttribute('id', 'lightbox');
+    lightboxImg.setAttribute('class', 'lightboxImg');
+    document.body.appendChild(lightboxImg);
+
+    getImagesFromServer(api_key, photoset_id, user_id, per_page, page);
+  }
+
+  //TODO: refactor
   function getImagesFromServer(api_key, photoset_id, user_id, per_page, page){
     function loadXMLDoc() {
         var xhttp = new XMLHttpRequest();
@@ -93,19 +118,16 @@
     var photosObj = parseXML(xmlPhotos);
     var photoset = photosObj.getElementsByTagName("photoset")[0];
     var photos = photosObj.getElementsByTagName("photo");
-    console.log(photoset);
 
-    var lightboxPhotos = new PhotoSet('url', photoset.getAttribute('id'), photoset.getAttribute('page'), photoset.getAttribute('perpage'), photoset.getAttribute('pages'), photoset.getAttribute('total'), photoset.getAttribute('title'));
+    lightboxPhotos = new PhotoSet('url', photoset.getAttribute('id'), photoset.getAttribute('page'), photoset.getAttribute('perpage'), photoset.getAttribute('pages'), photoset.getAttribute('total'), photoset.getAttribute('title'));
 
     for (i = 0; i < photos.length; i++) {
-        console.log(photos[i].getAttribute('server'));
         var photo = new FlickrPhoto(photos[i].getAttribute('server'), photos[i].getAttribute('farm'), photos[i].getAttribute('id'), photos[i].getAttribute('secret'));
 
         lightboxPhotos.addPhoto(photo);
 
-        createThumbnail(photo);
+        createThumbnail(photo, i);
     }
-
     console.log(lightboxPhotos);
   }
 
@@ -123,7 +145,7 @@
       return xmlObject;
   }
 
-  function createThumbnail(photo){
+  function createThumbnail(photo, index){
     var imageUrl = photo.getUrl();
     var photosetElement = document.getElementById("photoset");
 
@@ -134,35 +156,20 @@
       return false;
     };
 
-    var thumbnail = document.createElement('img');
-    thumbnail.setAttribute('src',imageUrl);
+    var thumbnail = document.createElement('div');
     thumbnail.setAttribute('class', 'square');
+    thumbnail.setAttribute('id', index);
+    thumbnail.style.backgroundImage = `url(${imageUrl})`;
 
     link.appendChild(thumbnail);
     photosetElement.appendChild(link);
   }
 
-  function initLightbox(){
-    //create all document elements first - with no display to be called in showLightbox()
-
-    //TODO: make all variable name consistent
-    var darkBackground = document.createElement('div');
-    darkBackground.setAttribute('class', 'darkOverlay');
-    darkBackground.setAttribute('id', 'overlay');
-    darkBackground.onclick = hideLightbox;
-    document.body.appendChild(darkBackground);
-
-    var lightboxImg = document.createElement('img');
-    lightboxImg.setAttribute('id', 'lightbox');
-    lightboxImg.setAttribute('class', 'lightboxImg');
-    document.body.appendChild(lightboxImg);
-
-    getImagesFromServer(api_key, photoset_id, user_id, per_page, page);
-
-  }
-
   function showLightbox(image){
-    console.log(image.getElementsByTagName("img")[0].getAttribute('src'));
+    var photoIndex = image.getElementsByTagName("div")[0].getAttribute('id');
+    var photo = lightboxPhotos.getPhoto(photoIndex);
+
+    console.log(photo);
 
     //TODO: make IE compatible
     //TODO: function for page size
@@ -172,7 +179,7 @@
 
     var lightboxImg = document.getElementById('lightbox');
     lightboxImg.style.display = 'block';
-    lightboxImg.setAttribute('src', image.getElementsByTagName("img")[0].getAttribute('src'));
+    lightboxImg.setAttribute('src', photo.getUrl());
     lightboxImg.style.left = (windowWidth / 2) - (lightboxImg.clientWidth /2);
     lightboxImg.style.top = (windowHeight / 2) - (lightboxImg.clientHeight /2);
 
@@ -207,10 +214,6 @@
 
     //stop listening for key press
   }
-
-function cropImg(){
-
-}
 
 
   function getKey(e){

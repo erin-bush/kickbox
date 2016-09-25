@@ -16,9 +16,12 @@
 
 
 .square {
-    width: 250px;
-    height: 250px;
-    overflow: hidden;
+  display: inline-block;
+  width: 200px;
+  height: 200px;
+  background-position: center center;
+  background-size: cover;
+  margin: 10px;
 }
 
 
