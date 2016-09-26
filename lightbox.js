@@ -13,22 +13,17 @@
 // size: m
 
 //TODO: Error handling for requests + xml parsing
-//TODO: image loading spinner
+//TODO: image loading spinner (lightbox and gallery)
 //TODO: abstract flickr stuff into its own function
 //TODO: promises?
 //TODO: readme
-//TODO: load more photos
 //TODO: pass in photoset information from html div
 
-//TODO: styling for gallery
-//TODO: center gallery images and button
 //TODO: make css class names consistent
-//TODO: loading spinner (lightbox and gallery)
 
 //TODO: overlay styling if body is smaller than page size
 //TODO: right and left arrow positioning on smaller screens
-
-//TODO: limit of photos in set
+//TODO: portrait image sizing + buttons on smaller screens
 
 
 (function (){
@@ -105,6 +100,7 @@
     var closeBtn = document.createElement('a');
     closeBtn.setAttribute('href', '#');
     closeBtn.setAttribute('class', 'close-btn');
+    closeBtn.setAttribute('id', 'close-btn');
     closeBtn.onclick = hideLightbox;
 
     var closeBtnImg = document.createElement('img');
@@ -117,6 +113,7 @@
     var rightArrow = document.createElement('a');
     rightArrow.setAttribute('href', '#');
     rightArrow.setAttribute('class', 'right-arrow');
+    rightArrow.setAttribute('id','right-arrow');
     rightArrow.onclick = function () {
       navigate("right");
     };
@@ -130,6 +127,7 @@
     var leftArrow = document.createElement('a');
     leftArrow.setAttribute('href', '#');
     leftArrow.setAttribute('class', 'left-arrow');
+    leftArrow.setAttribute('id', 'left-arrow');
     leftArrow.onclick = function () {
       navigate("left");
     };
@@ -144,8 +142,10 @@
     var buttonContainer = document.createElement('div');
     buttonContainer.setAttribute('class', 'addmore-container');
 
-    var addMoreBtn = document.createElement('a');
+    var addMoreBtn = document.createElement('button');
+    addMoreBtn.setAttribute('type', 'button');
     addMoreBtn.setAttribute('class', 'addmore-btn');
+    addMoreBtn.setAttribute('id', 'addmore-photos');
     var addMoreText = document.createTextNode("Load More Images");
     addMoreBtn.appendChild(addMoreText);
     addMoreBtn.onclick = loadMoreImages;
@@ -185,7 +185,10 @@
   function loadMoreImages(){
     if (parseInt(page) == parseInt(lightboxPhotos.numberOfPages)){
       //TODO: finish logic for getting to end of number of images (tell the user)
-      console.log("no more images to load");
+      //just remove the load more button
+      var addMoreBtn = document.getElementById('addmore-photos');
+      addMoreBtn.style.display = 'none';
+      //console.log("no more images to load");
     }
     else {
       getImagesFromServer(api_key, photoset_id, user_id, per_page, parseInt(page) + 1);
@@ -269,6 +272,14 @@
     overlay.style.display = 'block';
     overlay.style.height = windowHeight;
 
+    var closeBtn = document.getElementById('close-btn');
+    var rightArrow = document.getElementById('right-arrow');
+    var leftArrow = document.getElementById('left-arrow');
+
+    closeBtn.style.display = 'block';
+    rightArrow.style.display = 'block';
+    leftArrow.style.display = 'block';
+
     //disable scrolling when lightbox is open
     document.body.className += 'disableScrolling';
 
@@ -314,9 +325,15 @@
   function hideLightbox(){
     var lightboxImg = document.getElementById('lightbox');
     var overlay = document.getElementById("overlay");
+    var closeBtn = document.getElementById("close-btn");
+    var rightArrow = document.getElementById("right-arrow");
+    var leftArrow = document.getElementById("left-arrow");
 
     lightboxImg.style.display = 'none';
     overlay.style.display = 'none';
+    closeBtn.style.display = 'none';
+    rightArrow.style.display = 'none';
+    leftArrow.style.display = 'none';
 
     //remove "disableScrolling" class so page is once again scrollable
     document.body.className = document.body.className.replace( /(?:^|\s)disableScrolling(?!\S)/g , '' );
