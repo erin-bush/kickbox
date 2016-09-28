@@ -13,43 +13,45 @@
 // size: m
 
 //TODO: Error handling for requests + xml parsing
-//TODO: image loading spinner (lightbox and gallery)
-//TODO: abstract flickr stuff into its own function
 //TODO: promises?
+//TODO: abstract flickr stuff into its own function
 //TODO: readme
-//TODO: pass in photoset information from html div
-
+//TODO: move lightboxphotos object to init lightbox
 //TODO: make css class names consistent
-
-//TODO: overlay styling if body is smaller than page size
-//TODO: right and left arrow positioning on smaller screens
-//TODO: portrait image sizing + buttons on smaller screens
+//TODO: not currently working in Firefox - onclick function
+//TODO: test with Internet Explorer
+//TODO; header section: smaller height screens + centering with gallery
 
 
 (function (){
 
-  function FlickrPhoto(serverId, farmId, id, secret){
+  function FlickrPhoto(serverId, farmId, id, secret, title){
     this.serverId = serverId;
     this.farmId = farmId;
     this.photoId = id;
     this.secret = secret;
+    this.title = title;
   }
 
   FlickrPhoto.prototype = {
     constructor: FlickrPhoto,
-    getUrl: function(){
-      return `https://farm${this.farmId}.staticflickr.com/${this.serverId}/${this.photoId}_${this.secret}_b.jpg`
+    getUrl: function (){
+      return "https://farm" + this.farmId + ".staticflickr.com/" + this.serverId + "/" + this.photoId + "_" + this.secret + "_b.jpg";
+    },
+    getTitle: function (){
+      return this.title;
     }
   }
 
-  function PhotoSet(url, id, page, photosPerPage, numberOfPages, total, title){
-    this.url = url;
+  function PhotoSet(id, page, photosPerPage, apiKey, userId){
     this.photosetId = id;
     this.page = page;
     this.photosPerPage = photosPerPage;
-    this.numberOfPages = numberOfPages;
-    this.total = total;
-    this.photosetTitle = title;
+    //this.numberOfPages = numberOfPages;
+    //this.total = total;
+    //this.photosetTitle = title;
+    this.apiKey = apiKey;
+    this.userId = userId;
 
     this.photos = [];
   }
@@ -68,11 +70,23 @@
     getNumberOfPhotos: function(){
       return this.photos.length;
     },
-    getNextPhoto: function(){
-
-    },
     addPhoto: function(photo){
       this.photos.push(photo);
+    },
+    getPage: function(){
+      return this.page;
+    },
+    setPage: function(page){
+      this.page = page;
+    },
+    getUrl: function() {
+      return "https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=" +  this.apiKey + "&photoset_id=" + this.photosetId + "&user_id=" + this.userId  + "&per_page=" + this.photosPerPage + "&page=" + this.page;
+    },
+    getNumberOfPages: function(){
+      return this.numberOfPages;
+    },
+    setNumberOfPages: function(numPages){
+      this.numberOfPages = numPages;
     }
   }
 
@@ -80,11 +94,18 @@
 
 
   function initLightbox(){
-    //create all document elements first
 
-    //TODO: make all variable names consistent
     //TODO: clean up this function
 
+    //get Flickr values from html element
+    var photosetElement = document.getElementById("photoset");
+    var api_key = photosetElement.getAttribute('kick-api-key');
+    var photoset_id = photosetElement.getAttribute('kick-photoset-id');
+    var user_id = photosetElement.getAttribute('kick-user-id');
+    var per_page = photosetElement.getAttribute('kick-per-page');
+    var page = photosetElement.getAttribute('kick-page');
+
+    //create all document elements but don't display them until lightbox is shown
     var overlay = document.createElement('div');
     overlay.setAttribute('class', 'darkOverlay');
     overlay.setAttribute('id', 'overlay');
@@ -98,7 +119,6 @@
 
     //close button
     var closeBtn = document.createElement('a');
-    closeBtn.setAttribute('href', '#');
     closeBtn.setAttribute('class', 'close-btn');
     closeBtn.setAttribute('id', 'close-btn');
     closeBtn.onclick = hideLightbox;
@@ -111,7 +131,6 @@
 
     //scrolling buttons
     var rightArrow = document.createElement('a');
-    rightArrow.setAttribute('href', '#');
     rightArrow.setAttribute('class', 'right-arrow');
     rightArrow.setAttribute('id','right-arrow');
     rightArrow.onclick = function () {
@@ -125,7 +144,6 @@
     document.body.appendChild(rightArrow);
 
     var leftArrow = document.createElement('a');
-    leftArrow.setAttribute('href', '#');
     leftArrow.setAttribute('class', 'left-arrow');
     leftArrow.setAttribute('id', 'left-arrow');
     leftArrow.onclick = function () {
@@ -137,6 +155,11 @@
 
     leftArrow.appendChild(leftArrowImg);
     document.body.appendChild(leftArrow);
+
+    var title = document.createElement('div');
+    title.setAttribute('class', 'photo-title');
+    title.setAttribute('id', 'photo-title');
+    document.body.appendChild(title);
 
     //add a button to load more photos
     var buttonContainer = document.createElement('div');
@@ -154,11 +177,13 @@
 
     document.getElementById("main-content").appendChild(buttonContainer);
 
-    getImagesFromServer(api_key, photoset_id, user_id, per_page, page);
+    lightboxPhotos = new PhotoSet(photoset_id, page, per_page, api_key, user_id);
+
+    getImagesFromServer(lightboxPhotos.getUrl());
   }
 
-  //TODO: refactor
-  function getImagesFromServer(api_key, photoset_id, user_id, per_page, page){
+  //TODO: refactor - promise
+  function getImagesFromServer(url){
     function loadXMLDoc() {
         var xhttp = new XMLHttpRequest();
 
@@ -168,6 +193,7 @@
                  createPhotos(xhttp.responseText);
                }
                else if (xhttp.status == 400) {
+                 //TODO: throw error
                   console.log('There was an error 400');
                }
                else {
@@ -176,23 +202,24 @@
             }
         };
 
-        xhttp.open("GET", `https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=${api_key}&photoset_id=${photoset_id}&user_id=${user_id}&per_page=${per_page}&page=${page}`, true);
+        xhttp.open("GET", url, true);
         xhttp.send();
     }
     loadXMLDoc();
   }
 
   function loadMoreImages(){
-    if (parseInt(page) == parseInt(lightboxPhotos.numberOfPages)){
+    var currentPage = lightboxPhotos.getPage();
+    console.log(currentPage);
+    if (parseInt(currentPage) == parseInt(lightboxPhotos.getNumberOfPages())){
       //TODO: finish logic for getting to end of number of images (tell the user)
-      //just remove the load more button
+      //just remove the load more button - and add a star
       var addMoreBtn = document.getElementById('addmore-photos');
       addMoreBtn.style.display = 'none';
-      //console.log("no more images to load");
     }
     else {
-      getImagesFromServer(api_key, photoset_id, user_id, per_page, parseInt(page) + 1);
-      page = parseInt(page) + 1;
+      lightboxPhotos.setPage(parseInt(currentPage) + 1);
+      getImagesFromServer(lightboxPhotos.getUrl());
     }
   }
 
@@ -204,8 +231,11 @@
     var photos = photosObj.getElementsByTagName("photo");
     var index;
 
-    if(lightboxPhotos == null){
-      lightboxPhotos = new PhotoSet('url', photoset.getAttribute('id'), photoset.getAttribute('page'), photoset.getAttribute('perpage'), photoset.getAttribute('pages'), photoset.getAttribute('total'), photoset.getAttribute('title'));
+    if(lightboxPhotos.getNumberOfPhotos() == 0){
+      lightboxPhotos.setNumberOfPages(photoset.getAttribute('pages'));
+      lightboxPhotos.setNumberOfPages(photoset.getAttribute('total'));
+      lightboxPhotos.setNumberOfPages(photoset.getAttribute('title'));
+
       index = 0;
     }
     else {
@@ -213,7 +243,7 @@
     }
 
     for (i = 0; i < photos.length; i++) {
-        var photo = new FlickrPhoto(photos[i].getAttribute('server'), photos[i].getAttribute('farm'), photos[i].getAttribute('id'), photos[i].getAttribute('secret'));
+        var photo = new FlickrPhoto(photos[i].getAttribute('server'), photos[i].getAttribute('farm'), photos[i].getAttribute('id'), photos[i].getAttribute('secret'),photos[i].getAttribute('title'));
 
         lightboxPhotos.addPhoto(photo);
 
@@ -251,7 +281,7 @@
     var thumbnail = document.createElement('div');
     thumbnail.setAttribute('class', 'square');
     thumbnail.setAttribute('id', index);
-    thumbnail.style.backgroundImage = `url(${imageUrl})`;
+    thumbnail.style.backgroundImage = "url(" + imageUrl + ")";
 
     link.appendChild(thumbnail);
     photosetElement.appendChild(link);
@@ -275,10 +305,13 @@
     var closeBtn = document.getElementById('close-btn');
     var rightArrow = document.getElementById('right-arrow');
     var leftArrow = document.getElementById('left-arrow');
+    var photoTitle = document.getElementById('photo-title');
 
     closeBtn.style.display = 'block';
     rightArrow.style.display = 'block';
     leftArrow.style.display = 'block';
+    photoTitle.style.display = 'block';
+    photoTitle.innerHTML = photo.getTitle();
 
     //disable scrolling when lightbox is open
     document.body.className += 'disableScrolling';
@@ -289,15 +322,16 @@
   }
 
   function createLightboxImage(photo){
-    //TODO: make IE compatible
-    //TODO: resize image - max width and height: 100% of screen - 50px (or something like that)
-
-    var windowWidth = document.body.clientWidth;
-    var windowHeight = document.body.clientHeight;
-
+    var windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+    var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+    
     var lightboxImg = document.getElementById('lightbox');
+    var photoTitle = document.getElementById('photo-title');
+
     lightboxImg.style.display = 'block';
     lightboxImg.setAttribute('src', photo.getUrl());
+
+    photoTitle.innerHTML = photo.getTitle();
   }
 
 
@@ -312,13 +346,11 @@
       else if (key == "left") return parseInt(photoIndex) - 1 ;
     };
 
-    //debugger;
     var photoIndex = lightboxPhotos.getCurrentPhoto();
     var nextPhoto = photoIndex == limit(key) ? photoIndex : next(key);
 
     lightboxPhotos.setCurrentPhoto(nextPhoto);
     createLightboxImage(lightboxPhotos.getPhoto(nextPhoto));
-
   }
 
 
@@ -328,12 +360,15 @@
     var closeBtn = document.getElementById("close-btn");
     var rightArrow = document.getElementById("right-arrow");
     var leftArrow = document.getElementById("left-arrow");
+    var photoTitle = document.getElementById("photo-title");
 
+    //hide all lightbox elements
     lightboxImg.style.display = 'none';
     overlay.style.display = 'none';
     closeBtn.style.display = 'none';
     rightArrow.style.display = 'none';
     leftArrow.style.display = 'none';
+    photoTitle.style.display = 'none';
 
     //remove "disableScrolling" class so page is once again scrollable
     document.body.className = document.body.className.replace( /(?:^|\s)disableScrolling(?!\S)/g , '' );
@@ -344,7 +379,6 @@
 
 
   function getKey(e){
-    //TODO: make sure this works on all browsers
     e = e || window.event;
 
     if (e.keyCode === 39 || e.keyCode === 37) {
@@ -357,14 +391,6 @@
       }
     }
   }
-
-
-
-var api_key = '6e7f8f609846236e84cc48c061c4d4a4';
-var photoset_id = '72157672393641335';
-var user_id = '142612890@N04';
-var per_page = '12';
-var page = '1';
 
 window.onload = function () {
   initLightbox();

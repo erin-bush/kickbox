@@ -85,7 +85,7 @@ body {
   .lightboxImg{
     position: fixed;
     max-width: calc(100% - 150px);
-    max-height: calc(100% - 50px);
+    max-height: calc(100% - 160px);
     width: auto;
     height: auto;
 
@@ -115,7 +115,7 @@ body {
   .lightboxImg{
     position: fixed;
     max-width: calc(100% - 10px);
-    max-height: calc(100% - 10px);
+    max-height: calc(100% - 160px);
     width: auto;
     height: auto;
 
@@ -140,6 +140,10 @@ body {
     display: none;
   }
 
+  .photo-title{
+    left: 60px;
+  }
+
 }
 
 .right-arrow img, .left-arrow img{
@@ -150,8 +154,8 @@ body {
 
 .close-btn{
   position: fixed;
-  top: 30px;
-  right: 30px;
+  top: 20px;
+  right: 20px;
   display: none;
 }
 
@@ -189,7 +193,7 @@ body {
 }
 
 .clearfix {
-    *zoom: 1;
+    zoom: 1;
 }
 
 .topbar{
@@ -263,4 +267,15 @@ body {
 
 .header{
   margin-bottom: 20px;
+}
+
+.photo-title{
+  display: none;
+  position: fixed;
+  bottom: 30px;
+  color: #ffffff;
+  text-align: center;
+  left: 0;
+  right: 0;
+  margin: 0 60px;
 }
