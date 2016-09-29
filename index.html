@@ -2,28 +2,32 @@
 <head>
 <script type="text/javascript" src="lightbox.js"></script>
 <link rel="stylesheet" type="text/css" href="lightbox.css"/>
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 </head>
 <body>
   <div class="header">
     <div class="topbar">
     </div>
     <div class="jumbotron">
-      <img src="star.png" class="star-img"/>
-      <h1 class="title">
-        kickbox
-      </h1>
-      <p class="description">a lightbox viewer for Flickr</p>
+      <div class="title-container">
+        <img src="star.png" class="star-img"/>
+        <h1 class="title">
+          kickbox
+        </h1>
+        <p class="description">a lightbox viewer for Flickr</p>
+      </div>
 
       <div class="well">
         <p>usage:</p>
-        <p>&lt;div class="photoset" id="photoset"&gt; &lt;/div&gt;</p>
+        <p>&lt;div class="photoset" id="photoset" api-key="{Flickr API Key}" photoset-id="{Flickr Photoset Id}"
+          user-id="{Flickr User Id}" per-page="12" page="1"&gt; &lt;/div&gt;</p>
       </div>
     </div>
     <div class="divider"></div>
   </div>
   <div class="middle" id="main-content">
-    <div class="photoset clearfix" id="photoset" kick-api-key="6e7f8f609846236e84cc48c061c4d4a4" kick-photoset-id="72157672393641335"
-      kick-user-id="142612890@N04" kick-per-page="12" kick-page="1"></div>
+    <div class="photoset clearfix" id="photoset" api-key="6e7f8f609846236e84cc48c061c4d4a4" photoset-id="72157668327148945"
+      user-id="142612890@N04" per-page="12" page="6"></div>
   </div>
 </body>
 </html>

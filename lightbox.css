@@ -1,30 +1,49 @@
+
 body {
   padding: 0;
   margin: 0;
-  font-family: Tahoma, Geneva, sans-serif;
+  font-family: 'Open Sans', sans-serif;
 }
 
-@media (min-width: 736px){
-  .middle {
-      box-sizing: content-box;
-      padding: 40px 20px 0;
-      width: calc(100% - 30px);
-    }
+.clearfix:before,
+.clearfix:after {
+    content: "";
+    display: table;
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+.clearfix {
+    zoom: 1;
 }
 
 .photoset{
   text-align: center;
 }
 
+.photoset-title{
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 20px;
+}
+
+.square{
+  display: inline-block;
+  margin: 10px;
+  background-size: cover;
+  background-position: center center;
+}
+
+.square:hover{
+  opacity: 0.9;
+}
 
 @media (min-width: 935px){
   .square {
-    display: inline-block;
     width: 275px;
     height: 275px;
-    background-position: center center;
-    background-size: cover;
-    margin: 10px;
   }
 }
 
@@ -42,10 +61,6 @@ body {
   }
 
   .square {
-    display: inline-block;
-    background-position: center center;
-    background-size: cover;
-    margin: 10px;
     position: absolute;
     top: 0;
     right: 0;
@@ -62,10 +77,10 @@ body {
 
 .middle {
   max-width: 935px;
-  margin: 0 auto 30px;
+  margin: 0 auto 100px;
 }
 
-.darkOverlay{
+.overlay{
   background-color: black;
   opacity: 0.75;
   width: 100%;
@@ -76,74 +91,27 @@ body {
   left: 0;
 }
 
-.disableScrolling {
+.disable-scrolling {
   overflow: hidden;
 }
 
-@media (min-width: 736px){
-
-  .lightboxImg{
-    position: fixed;
-    max-width: calc(100% - 150px);
-    max-height: calc(100% - 160px);
-    width: auto;
-    height: auto;
-
-    margin:auto;
-    top:0;
-    bottom:0;
-    left:0;
-    right:0;
-  }
-
-  .right-arrow{
-    position: fixed;
-    top: 50%;
-    right: 20px;
-    display: none;
-  }
-
-  .left-arrow{
-    position: fixed;
-    top: 50%;
-    left: 20px;
-    display: none;
-  }
+.lightbox-img{
+  position: fixed;
+  max-width: calc(100% - 150px);
+  max-height: calc(100% - 160px);
+  width: auto;
+  height: auto;
+  margin:auto;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
+  display: none;
 }
 
-@media (max-width: 736px){
-  .lightboxImg{
-    position: fixed;
-    max-width: calc(100% - 10px);
-    max-height: calc(100% - 160px);
-    width: auto;
-    height: auto;
-
-    margin:auto;
-    top:0;
-    bottom:0;
-    left:0;
-    right:0;
-  }
-
-  .right-arrow{
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    display: none;
-  }
-
-  .left-arrow{
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    display: none;
-  }
-
-  .photo-title{
-    left: 60px;
-  }
-
+.right-arrow, .left-arrow{
+  position: fixed;
+  display: none;
 }
 
 .right-arrow img, .left-arrow img{
@@ -151,6 +119,56 @@ body {
   height: 40px;
 }
 
+@media (min-width: 736px){
+
+  .lightbox-img{
+    max-width: calc(100% - 150px);
+    max-height: calc(100% - 160px);
+  }
+
+  .right-arrow{
+    top: 50%;
+    right: 20px;
+  }
+
+  .left-arrow{
+    top: 50%;
+    left: 20px;
+  }
+
+  .middle {
+    box-sizing: content-box;
+    padding: 40px 20px 0;
+    width: calc(100% - 30px);
+  }
+
+  .well{
+    max-width: 600px;
+  }
+}
+
+@media (max-width: 736px){
+
+  .lightbox-img{
+    max-width: calc(100% - 10px);
+    max-height: calc(100% - 160px);
+  }
+
+  .right-arrow{
+    bottom: 20px;
+    right: 20px;
+  }
+
+  .left-arrow{
+    bottom: 20px;
+    left: 20px;
+  }
+
+  .photo-title{
+    left: 60px;
+  }
+
+}
 
 .close-btn{
   position: fixed;
@@ -170,8 +188,6 @@ body {
   border: 1px solid;
   border-radius: 3px;
   color: white;
-
-  /*TODO: pick a good font*/
   text-decoration: none;
   font-size: 14px;
 }
@@ -182,35 +198,21 @@ body {
   text-align: center;
 }
 
-.clearfix:before,
-.clearfix:after {
-    content: "";
-    display: table;
-}
-
-.clearfix:after {
-    clear: both;
-}
-
-.clearfix {
-    zoom: 1;
-}
-
 .topbar{
   height: 50px;
   width: 100%;
 
-  background: #EF9E9E; /* For browsers that do not support gradients */
-  background: -webkit-linear-gradient(left, #EF9E9E , #92B3E7); /* For Safari 5.1 to 6.0 */
-  background: -o-linear-gradient(right, #EF9E9E, #92B3E7); /* For Opera 11.1 to 12.0 */
-  background: -moz-linear-gradient(right, #EF9E9E, #92B3E7); /* For Firefox 3.6 to 15 */
-  background: linear-gradient(to right, #EF9E9E , #92B3E7); /* Standard syntax */
+  background: #EF9E9E;
+  background: -webkit-linear-gradient(left, #EF9E9E , #92B3E7);
+  background: -o-linear-gradient(right, #EF9E9E, #92B3E7);
+  background: -moz-linear-gradient(right, #EF9E9E, #92B3E7);
+  background: linear-gradient(to right, #EF9E9E , #92B3E7);
 }
 
 .jumbotron{
-  height: 50%;
-  padding: 100px 0 0 20%;
-
+  width: calc(100% - 60px);
+  max-width: 850px;
+  margin: 0 auto 30px;
 }
 
 .title{
@@ -218,6 +220,10 @@ body {
   font-weight: 100;
   margin-bottom: 0px;
   margin-left: 80px;
+}
+
+.title-container{
+  margin-top: 75px;
 }
 
 .description{
@@ -229,29 +235,20 @@ body {
 
 .star-img{
   float: left;
-  margin-top: 20px;
 }
 
 .well{
-  margin-left: 80px;
+  margin: 150px auto 75px;
   background-color: #F4F4F4;
   border: 1px solid #E6E6E6;
   border-radius: 3px;
-  margin-right: 20px;
   padding: 10px;
-  margin-top: 150px;
 }
 
 .well p {
   font-size: 12px;
   color: #9F9E9E;
   margin: 3px 0 3px 10px;
-}
-
-@media (min-width: 736px){
-  .well{
-    max-width: 600px;
-  }
 }
 
 .divider{
@@ -278,4 +275,9 @@ body {
   left: 0;
   right: 0;
   margin: 0 60px;
+}
+
+.final-star{
+  display: none;
+  margin: auto;
 }
