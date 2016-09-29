@@ -160,7 +160,7 @@
     closeBtn.setAttribute('class', 'close-btn');
     closeBtn.setAttribute('id', 'close-btn');
     closeBtn.onclick = hideLightbox;
-    closeBtnImg.setAttribute('src', 'xbutton.png');
+    closeBtnImg.setAttribute('src', 'images/xbutton.png');
     closeBtn.appendChild(closeBtnImg);
     document.body.appendChild(closeBtn);
 
@@ -170,7 +170,7 @@
       navigate("right");
       return false;
     };
-    rightArrowImg.setAttribute('src', 'right-arrow.png');
+    rightArrowImg.setAttribute('src', 'images/right-arrow.png');
     rightArrow.appendChild(rightArrowImg);
     document.body.appendChild(rightArrow);
 
@@ -181,7 +181,7 @@
       return false;
     };
 
-    leftArrowImg.setAttribute('src', 'left-arrow.png');
+    leftArrowImg.setAttribute('src', 'images/left-arrow.png');
     leftArrow.appendChild(leftArrowImg);
     document.body.appendChild(leftArrow);
 
@@ -204,7 +204,7 @@
     buttonContainer.appendChild(addMoreBtn);
     main.appendChild(buttonContainer);
 
-    finalStar.setAttribute('src', "star.png");
+    finalStar.setAttribute('src', "images/star.png");
     finalStar.setAttribute('class', 'final-star');
     finalStar.setAttribute('id', 'final-star');
     main.appendChild(finalStar);
