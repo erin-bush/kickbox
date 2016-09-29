@@ -9,12 +9,6 @@
  *
  */
 
-//TODO: total images
-
-//TODO: readme
-//TODO: intro on this page
-
-
 
 (function (){
 
@@ -95,7 +89,7 @@
       this.total = total;
     },
     getTotal: function(){
-      return total;
+      return this.total;
     },
     setTitle: function(title){
       this.photosetTitle = title;
@@ -245,18 +239,24 @@
    * Flickr
    */
   function loadMoreImages() {
-    var currentPage = lightboxPhotos.getPage();
+    var currentPage = parseInt(lightboxPhotos.getPage()),
+        totalPages = parseInt(lightboxPhotos.getNumberOfPages());
 
-    if (parseInt(currentPage) == parseInt(lightboxPhotos.getNumberOfPages())){
-      var addMoreBtn = document.getElementById('addmore-photos');
-      var finalStar = document.getElementById('final-star');
-      addMoreBtn.style.display = 'none';
-      finalStar.style.display = 'block';
-    }
-    else {
-      lightboxPhotos.setPage(parseInt(currentPage) + 1);
+    if ( currentPage < totalPages ){
+      currentPage++;
+      lightboxPhotos.setPage(currentPage);
       getImagesFromServer(lightboxPhotos.getUrl());
     }
+    if (currentPage >= totalPages){
+      removeLoadMoreButton();
+    }
+  }
+
+  function removeLoadMoreButton(){
+    var addMoreBtn = document.getElementById('addmore-photos');
+    var finalStar = document.getElementById('final-star');
+    addMoreBtn.style.display = 'none';
+    finalStar.style.display = 'block';
   }
 
   /**
@@ -273,7 +273,11 @@
         photosetTitle = document.getElementById("photoset-title"),
         index;
 
-    if(lightboxPhotos.getNumberOfPhotos() == 0){
+    if(!photoset){
+      photosetTitle.innerHTML = "There was an error retrieving the photos";
+      removeLoadMoreButton();
+
+    } else if(lightboxPhotos.getNumberOfPhotos() == 0){
       lightboxPhotos.setNumberOfPages(photoset.getAttribute('pages'));
       lightboxPhotos.setTotal(photoset.getAttribute('total'));
       lightboxPhotos.setTitle(photoset.getAttribute('title'));
@@ -281,8 +285,7 @@
       photosetTitle.innerHTML = lightboxPhotos.getTitle();
 
       index = 0;
-    }
-    else {
+    } else {
       index = lightboxPhotos.getNumberOfPhotos();
     }
 
